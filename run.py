@@ -23,11 +23,18 @@ def run(
     ckpt_path: str,
 ) -> List[EnvRunResult]:
     print(f"Loading user with strategy: {args.user_strategy}")
+    user_completion_kwargs = {}
+    if args.user_model_api_base:
+        user_completion_kwargs["api_base"] = args.user_model_api_base
+    if args.user_model_api_key:
+        user_completion_kwargs["api_key"] = args.user_model_api_key
+
     env = get_env(
         args.env,
         user_strategy=args.user_strategy,
         user_model=args.user_model,
         user_provider=args.user_model_provider,
+        user_completion_kwargs=user_completion_kwargs,
         task_split=args.task_split,
     )
     agent = agent_factory(
@@ -55,11 +62,6 @@ def run(
             random.shuffle(idxs)
 
         def _run(idx: int) -> EnvRunResult:
-            user_completion_kwargs = {}
-            if args.user_model_api_base:
-                user_completion_kwargs["api_base"] = args.user_model_api_base
-            if args.user_model_api_key:
-                user_completion_kwargs["api_key"] = args.user_model_api_key
 
             isolated_env = get_env(
                 args.env,
