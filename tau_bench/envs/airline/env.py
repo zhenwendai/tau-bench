@@ -15,6 +15,7 @@ class MockAirlineDomainEnv(Env):
         user_strategy: Union[str, UserStrategy] = UserStrategy.LLM,
         user_model: str = "gpt-4o",
         user_provider: Optional[str] = None,
+        user_completion_kwargs={},
         task_split: str = "test",
         task_index: Optional[int] = None,
     ):
@@ -32,6 +33,7 @@ class MockAirlineDomainEnv(Env):
             user_strategy=user_strategy,
             user_model=user_model,
             user_provider=user_provider,
+            user_completion_kwargs=user_completion_kwargs,
             task_index=task_index,
         )
         self.terminate_tools = ["transfer_to_human_agents"]

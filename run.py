@@ -45,7 +45,7 @@ def run(
     else:
         print(
             f"Running tasks {args.start_index} to {end_index} (checkpoint path: {ckpt_path})"
-    )
+        )
     for i in range(args.num_trials):
         if args.task_ids and len(args.task_ids) > 0:
             idxs = args.task_ids
@@ -55,12 +55,19 @@ def run(
             random.shuffle(idxs)
 
         def _run(idx: int) -> EnvRunResult:
+            user_completion_kwargs = {}
+            if args.user_model_api_base:
+                user_completion_kwargs["api_base"] = args.user_model_api_base
+            if args.user_model_api_key:
+                user_completion_kwargs["api_key"] = args.user_model_api_key
+
             isolated_env = get_env(
                 args.env,
                 user_strategy=args.user_strategy,
                 user_model=args.user_model,
                 task_split=args.task_split,
                 user_provider=args.user_model_provider,
+                user_completion_kwargs=user_completion_kwargs,
                 task_index=idx,
             )
 
@@ -205,6 +212,14 @@ def main():
         help="The model provider for the user simulator",
     )
     parser.add_argument(
+        "--user-model-api-base",
+        type=str,
+    )
+    parser.add_argument(
+        "--user-model-api-key",
+        type=str,
+    )
+    parser.add_argument(
         "--agent-strategy",
         type=str,
         default="tool-calling",
@@ -225,7 +240,12 @@ def main():
     )
     parser.add_argument("--start-index", type=int, default=0)
     parser.add_argument("--end-index", type=int, default=-1, help="Run all tasks if -1")
-    parser.add_argument("--task-ids", type=int, nargs="+", help="(Optional) run only the tasks with the given IDs")
+    parser.add_argument(
+        "--task-ids",
+        type=int,
+        nargs="+",
+        help="(Optional) run only the tasks with the given IDs",
+    )
     parser.add_argument("--log-dir", type=str, default="results")
     parser.add_argument(
         "--max-concurrency",
@@ -235,7 +255,12 @@ def main():
     )
     parser.add_argument("--seed", type=int, default=10)
     parser.add_argument("--shuffle", type=int, default=0)
-    parser.add_argument("--user-strategy", type=str, default="llm", choices=[item.value for item in UserStrategy])
+    parser.add_argument(
+        "--user-strategy",
+        type=str,
+        default="llm",
+        choices=[item.value for item in UserStrategy],
+    )
 
     args = parser.parse_args()
     print(args)
