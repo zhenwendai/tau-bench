@@ -52,7 +52,9 @@ class LLMUserSimulationEnv(BaseUserSimulationEnv):
             **self.completion_kwargs,
         )
         message = res.choices[0].message
-        self.messages.append(message.model_dump())
+        self.messages.append(
+            {k: v for k, v in message.model_dump().items() if k in ["role", "content"]}
+        )
         self.total_cost = res._hidden_params["response_cost"]
         return message.content
 
@@ -133,7 +135,9 @@ User Response:
             **self.completion_kwargs,
         )
         message = res.choices[0].message
-        self.messages.append(message.model_dump())
+        self.messages.append(
+            {k: v for k, v in message.model_dump().items() if k in ["role", "content"]}
+        )
         self.total_cost = res._hidden_params["response_cost"]
         return self.parse_response(message.content)
 
